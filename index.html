@@ -565,7 +565,15 @@
                 <dd id="summary-unit" class="font-bold text-slate-800 text-base summary-value">10,000 원</dd>
               </div>
               <div id="summary-desc-wrap" class="bg-indigo-50 p-3 rounded-lg summary-card hidden">
-                <dt class="text-indigo-700 font-medium text-xs mb-1">계산 상세</dt>
+                <div class="flex items-center justify-between mb-1">
+                  <dt class="text-indigo-700 font-medium text-xs">계산 상세</dt>
+                  <button id="copy-summary-desc" class="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-indigo-600 hover:text-indigo-700 hover:bg-indigo-100 rounded transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2" />
+                    </svg>
+                    복사
+                  </button>
+                </div>
                 <dd id="summary-desc" class="text-indigo-900 text-xs leading-relaxed"></dd>
               </div>
             </dl>
@@ -896,7 +904,7 @@
 
         const showResult = (el, amount, desc = '', formula = '') => {
             el.classList.remove('text-red-500');
-            el.textContent = `₩ ${amount.toLocaleString('ko-KR')}`;
+            el.textContent = `₩ ${amount.toLocaleString('ko-KR')}원`;
 
             // 애니메이션 효과
             el.classList.remove('updated');
@@ -940,6 +948,24 @@
                 e.target.nextElementSibling.classList.add('text-indigo-600');
                 summaryUnitValue.textContent = `${getUnit().toLocaleString()} 원`;
             }
+        });
+
+        // 계산 상세 복사 버튼
+        document.getElementById('copy-summary-desc').addEventListener('click', () => {
+            const summaryDescEl = document.getElementById('summary-desc');
+            const text = summaryDescEl.innerText || summaryDescEl.textContent;
+            
+            if (!text || text.trim() === '') {
+                showToast('복사할 내용이 없습니다.', 'warning');
+                return;
+            }
+            
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('계산 상세가 복사되었습니다.', 'success');
+            }).catch(err => {
+                console.error('복사 실패:', err);
+                showToast('복사에 실패했습니다.', 'error');
+            });
         });
 
         document.getElementById('copy-sample').addEventListener('click', () => {
@@ -1161,7 +1187,7 @@
             const formula = `\\text{결과금액} = ${vehicleValue.toLocaleString()} \\times ${remainingRate}\\%`;
 
             showResult(el, final,
-                `차량가액: ${vehicleValue.toLocaleString()}원 × 잔존율: ${remainingRate}%`,
+                `차량가액 × 잔존율: ${remainingRate}%`,
                 formula
             );
         });
